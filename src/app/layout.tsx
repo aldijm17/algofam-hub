@@ -21,6 +21,7 @@ export default function RootLayout({
         />
       </head>
       <body>
+        {/* 'children' akan merender isi dari page.tsx */}
         {children}
       </body>
     </html>
