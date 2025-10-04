@@ -11,3 +11,14 @@ export interface Task {
   catatan?: string | null;
   status: 'belum' | 'selesai'; // Hanya bisa berisi salah satu dari dua nilai ini
 }
+
+export interface Schedule {
+  id: number;
+  created_at: string;
+  mata_kuliah: string;
+  dosen: string;
+  hari: 'Senin' | 'Selasa' | 'Rabu' | 'Kamis' | 'Jumat' | 'Sabtu' | 'Minggu';
+  waktu_masuk: string; // Format "HH:MM"
+  waktu_keluar: string; // Format "HH:MM"
+  ruang: string;
+}

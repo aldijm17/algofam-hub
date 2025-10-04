@@ -1,19 +1,19 @@
-// /app/admin/tugas/edit/[id]/page.tsx
+// /src/app/admin/tugas/edit/[id]/page.tsx
 'use client'
 
 import { useEffect, useState, FormEvent } from 'react'
-import { useRouter } from 'next/navigation'
+// Impor useParams dari next/navigation
+import { useRouter, useParams } from 'next/navigation' 
 import { createClient } from '@/utils/supabase/client'
 import Link from 'next/link'
 import { Task } from '@/types/database'
 
-interface EditPageProps {
-  params: { id: string };
-}
-
-export default function EditTugasPage({ params }: EditPageProps) {
-  const { id } = params;
+export default function EditTugasPage() {
   const router = useRouter();
+  // Gunakan useParams untuk mendapatkan parameter dari URL
+  const params = useParams();
+  const id = params.id as string; // Ambil id dari objek params
+
   const supabase = createClient();
   const [task, setTask] = useState<Task | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -72,6 +72,7 @@ export default function EditTugasPage({ params }: EditPageProps) {
       <h2>✏️ Edit Tugas</h2>
       <div className="form-container">
         <form id="editForm" onSubmit={handleSubmit}>
+          {/* Sisa formulir tidak berubah */}
           <div className="form-group">
             <label htmlFor="tugas">Nama Tugas *</label>
             <input type="text" id="tugas" name="tugas" defaultValue={task.tugas} required />

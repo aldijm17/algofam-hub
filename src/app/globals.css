@@ -1,26 +1,177 @@
-@import "tailwindcss";
+/* /src/app/globals.css */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg-primary: #0F111A;
+  --bg-secondary: #1E1E2E;
+  --accent-cyan: #00FFFF;
+  --accent-purple: #A855F7;
+  --accent-orange: #FF8C00;
+  --text-primary: #FFFFFF;
+  --text-secondary: #9CA3AF;
+  --border: rgba(255, 255, 255, 0.1);
+  --glass-bg: rgba(30, 30, 46, 0.4);
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --glow-cyan: 0 0 20px rgba(0, 255, 255, 0.3);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  min-height: 100vh;
+  padding-bottom: 6rem; /* Beri ruang untuk navigasi bawah */
+}
+
+/* Header Utama */
+.main-header {
+  height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 2rem;
+  margin: 2rem auto;
+  max-width: 600px;
+  width: 90%;
+  position: relative;
+  overflow: hidden;
+}
+.main-header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-cyan), var(--accent-purple), transparent);
+}
+.current-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(45deg, var(--accent-cyan), var(--accent-purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
+}
+.current-date { font-size: 1rem; color: var(--text-secondary); }
+
+/* Grid Statistik */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  margin: 0 auto 2rem;
+  max-width: 600px;
+  width: 90%;
+}
+.stat-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  text-align: center;
+}
+.stat-number {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+.stat-label { color: var(--text-secondary); font-size: 0.8rem; text-transform: uppercase; }
+
+/* Kartu Kaca (Glass Card) */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  margin: 0 auto 1.5rem;
+  box-shadow: var(--shadow);
+  max-width: 600px;
+  width: 90%;
+}
+.glass-card h2 { margin-bottom: 1rem; font-size: 1.2rem; }
+
+/* Daftar Item */
+.list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+.list-item:last-child { border-bottom: none; }
+.list-title { font-weight: 500; margin-bottom: 0.25rem; }
+.list-meta { font-size: 0.85rem; color: var(--text-secondary); }
+.list-action { font-size: 0.8rem; padding: 0.25rem 0.75rem; border-radius: 1rem; font-weight: 500; }
+.list-action.danger { background: #FF6B6B; color: var(--bg-primary); }
+.list-action.warning { background: var(--accent-orange); color: var(--bg-primary); }
+
+/* Navigasi Bawah */
+.bottom-nav {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 2rem;
+  padding: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+  z-index: 1000;
+  box-shadow: var(--shadow);
+}
+.nav-item {
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  border-radius: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.nav-item.active {
+  background: linear-gradient(45deg, var(--accent-cyan), var(--accent-purple));
+  color: var(--text-primary);
+}
+/* /src/app/globals.css */
+
+/* ... (semua kode CSS dari langkah sebelumnya) ... */
+
+/* Animasi untuk konten halaman */
+.page-content {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+    from { 
+        opacity: 0; 
+        transform: translateY(20px);
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0);
+    }
+}
+
+/* Sedikit penyesuaian untuk list item */
+.list-item:hover {
+  background-color: rgba(255, 255, 255, 0.05);
 }
