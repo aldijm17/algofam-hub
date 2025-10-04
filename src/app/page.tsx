@@ -79,7 +79,18 @@ function HomePageContent() {
       const header = headerContainerRef.current;
       if (container && header) {
         const scrollTop = container.scrollTop;
+        
+        // 1. Efek Parallax untuk Header
         header.style.transform = `translateY(${scrollTop * 0.5}px)`;
+
+        // 2. Efek Latar Belakang Menjadi Gelap saat Scroll
+        const scrollThreshold = 300; // Jarak scroll (dalam px) untuk mencapai kegelapan maksimal
+        const scrollFraction = Math.min(scrollTop / scrollThreshold, 1);
+        
+        // Mengubah warna background container dari transparan menjadi gelap
+        // Warna --bg-primary adalah #0F111A atau rgb(15, 17, 26)
+        container.style.backgroundColor = `rgba(0, 0, 0, ${scrollFraction})`;
+        header.style.opacity = `${1 - scrollFraction}`;
       }
     };
     
@@ -108,11 +119,11 @@ function HomePageContent() {
         const element = itemRefs.current.get(highlight);
         element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
         
-        // Hapus highlight setelah 2 detik (2 kali kedip @ 0.7s)
+        // Hapus highlight setelah 2 detik
         setTimeout(() => {
           setHighlightedItemId(null);
         }, 2000);
-      }, 100); // delay kecil untuk memastikan item sudah dirender
+      }, 100); 
     }
   }, [searchParams]);
 
