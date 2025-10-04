@@ -1,27 +1,31 @@
-// /src/components/BottomNav.tsx
-'use client';
+// src/components/BottomNav.tsx
+'use client'
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+// Definisikan tipe untuk props yang akan diterima komponen
+interface BottomNavProps {
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+}
 
 const navLinks = [
-  { href: '/', label: 'Beranda' },
-  { href: '/jadwal', label: 'Jadwal' },
-  { href: '/tugas', label: 'Tugas' },
-  { href: '/matakuliah', label: 'Matkul' },
+  { id: 'beranda', label: 'Beranda' },
+  { id: 'jadwal', label: 'Jadwal' },
+  { id: 'tugas', label: 'Tugas' },
 ];
 
-export default function BottomNav() {
-  const pathname = usePathname();
-
+// Terima props sebagai argumen di dalam komponen
+export default function BottomNav({ activeTab, setActiveTab }: BottomNavProps) {
   return (
     <nav className="bottom-nav">
       {navLinks.map(link => (
-        <Link key={link.href} href={link.href} passHref>
-          <button className={`nav-item ${pathname === link.href ? 'active' : ''}`}>
-            {link.label}
-          </button>
-        </Link>
+        <button 
+          key={link.id} 
+          // Gunakan props untuk menentukan kelas 'active' dan fungsi onClick
+          className={`nav-item ${activeTab === link.id ? 'active' : ''}`}
+          onClick={() => setActiveTab(link.id)}
+        >
+          {link.label}
+        </button>
       ))}
     </nav>
   );
