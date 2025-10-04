@@ -1,7 +1,8 @@
 // src/app/page.tsx
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import Header from '@/components/Header';
 import StatsGrid from '@/components/StatsGrid';
@@ -19,7 +20,9 @@ const parseTime = (timeStr: string) => {
   return date;
 };
 
-export default function HomePage() {
+// Komponen Konten Utama untuk bisa menggunakan useSearchParams
+function HomePageContent() {
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState('beranda');
   const [tasks, setTasks] = useState<Task[]>([]);
   const [schedules, setSchedules] = useState<Schedule[]>([]);
@@ -35,6 +38,10 @@ export default function HomePage() {
   
   // State for class status colors
   const [scheduleStatuses, setScheduleStatuses] = useState<Record<number, string>>({});
+
+  // State dan Ref untuk highlight
+  const [highlightedItemId, setHighlightedItemId] = useState<string | null>(null);
+  const itemRefs = useRef(new Map<string, HTMLDivElement>());
 
   // Refs for parallax effect
   const appContainerRef = useRef<HTMLDivElement>(null);
@@ -58,7 +65,7 @@ export default function HomePage() {
     setSchedules((schedulesRes.data as Schedule[]) || []);
     setLoading(false);
     if(isRefreshing) setIsRefreshing(false);
-  }, [isRefreshing]);
+  }, [isRefreshing, supabase]);
 
   // Initial data fetch, notification, and parallax setup
   useEffect(() => {
@@ -72,7 +79,6 @@ export default function HomePage() {
       const header = headerContainerRef.current;
       if (container && header) {
         const scrollTop = container.scrollTop;
-        // Move header at half the scroll speed for a parallax effect
         header.style.transform = `translateY(${scrollTop * 0.5}px)`;
       }
     };
@@ -84,7 +90,32 @@ export default function HomePage() {
       supabase.removeChannel(channel);
       container?.removeEventListener('scroll', handleScroll);
     };
-  }, []);
+  }, [fetchData, supabase]);
+  
+    // Efek untuk menangani highlight dari URL
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    const highlight = searchParams.get('highlight');
+
+    if (tab) {
+      setActiveTab(tab);
+    }
+    if (highlight) {
+      setHighlightedItemId(highlight);
+      
+      // Scroll dan hapus highlight setelah animasi
+      setTimeout(() => {
+        const element = itemRefs.current.get(highlight);
+        element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Hapus highlight setelah 2 detik (2 kali kedip @ 0.7s)
+        setTimeout(() => {
+          setHighlightedItemId(null);
+        }, 2000);
+      }, 100); // delay kecil untuk memastikan item sudah dirender
+    }
+  }, [searchParams]);
+
 
   // Interval to update class status colors
   useEffect(() => {
@@ -176,6 +207,19 @@ export default function HomePage() {
         );
     };
 
+    // Urutkan data agar yang di-highlight muncul di atas
+    const sortedSchedules = [...schedules].sort((a, b) => {
+        if (highlightedItemId === `schedule-${a.id}`) return -1;
+        if (highlightedItemId === `schedule-${b.id}`) return 1;
+        return 0;
+    });
+
+    const sortedTasks = [...filteredTasks].sort((a, b) => {
+        if (highlightedItemId === `task-${a.id}`) return -1;
+        if (highlightedItemId === `task-${b.id}`) return 1;
+        return 0;
+    });
+
     switch (activeTab) {
       case 'beranda':
         return (
@@ -247,8 +291,12 @@ export default function HomePage() {
           <div key="jadwal" className="page-content">
             <div className="glass-card">
               <h2>Semua Jadwal</h2>
-              {schedules.map(schedule => (
-                <div key={schedule.id} className="list-item-wrapper">
+              {sortedSchedules.map(schedule => (
+                <div 
+                  key={schedule.id} 
+                  className={`list-item-wrapper ${highlightedItemId === `schedule-${schedule.id}` ? 'highlighted' : ''}`}
+                  ref={el => { if (el) itemRefs.current.set(`schedule-${schedule.id}`, el); }}
+                >
                     <div className={`list-item schedule-${scheduleStatuses[schedule.id] || 'default'} ${expandedItemId === `schedule-${schedule.id}` ? 'expanded' : ''}`} onClick={() => handleItemClick('schedule', schedule.id)}>
                         <div>
                             <div className="list-title">{schedule.mata_kuliah}</div>
@@ -270,8 +318,12 @@ export default function HomePage() {
                   <button className={`filter-btn ${taskFilter === 'all' ? 'active' : ''}`} onClick={() => setTaskFilter('all')}>Semua</button>
                   <button className={`filter-btn ${taskFilter === 'recent' ? 'active' : ''}`} onClick={() => setTaskFilter('recent')}>Terbaru</button>
               </div>
-              {filteredTasks.map(task => (
-                <div key={task.id} className="list-item-wrapper">
+              {sortedTasks.map(task => (
+                <div 
+                  key={task.id} 
+                  className={`list-item-wrapper ${highlightedItemId === `task-${task.id}` ? 'highlighted' : ''}`}
+                  ref={el => { if (el) itemRefs.current.set(`task-${task.id}`, el); }}
+                >
                     <div className={`list-item ${expandedItemId === `task-${task.id}` ? 'expanded' : ''}`} onClick={() => handleItemClick('task', task.id)}>
                         <div>
                             <div className="list-title">{task.tugas}</div>
@@ -294,9 +346,6 @@ export default function HomePage() {
     <div className="app-container" ref={appContainerRef}>
       {isRefreshing && <div className="pull-to-refresh-indicator show">Menyegarkan data...</div>}
       
-      {/* Search harus di luar header-container agar tidak terkena parallax */}
-      {/* <Search tasks={tasks} schedules={schedules} /> */}
-      
       <div className="header-container" ref={headerContainerRef}>
         <Search tasks={tasks} schedules={schedules} />
         <Header />
@@ -310,3 +359,13 @@ export default function HomePage() {
     </div>
   );
 }
+
+
+// Bungkus komponen utama dengan Suspense agar useSearchParams bisa digunakan
+export default function HomePage() {
+    return (
+      <Suspense fallback={<div className="loading">Memuat...</div>}>
+        <HomePageContent />
+      </Suspense>
+    );
+  }

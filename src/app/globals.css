@@ -76,13 +76,12 @@ main {
 .search-container {
     position: sticky;
     top: 0;
-    z-index: 100; /* Tinggi agar selalu di atas */
+    z-index: 100;
     width: 90%;
     max-width: 600px;
     margin: 0 auto;
     padding: 1rem 0;
     position: relative;
-    /* background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-primary) 80%, transparent 100%); */
 }
 
 .search-bar {
@@ -96,22 +95,24 @@ main {
     font-size: 1rem;
     outline: none;
     transition: all 0.3s ease;
-    position: sticky;
+    position: relative; /* Ubah dari sticky */
+    z-index: 10000; /* Pastikan search bar di atas */
 }
 
 .search-results {
     position: absolute;
-    top: 100%;
+    top: calc(100% - 1rem); /* Sesuaikan posisi agar sedikit tumpang tindih */
     left: 0;
     right: 0;
     background: var(--glass-bg);
     backdrop-filter: blur(10px);
-    /* border: 1px solid var(--border); */
+    border: 1px solid var(--border);
     border-top: none;
-    border-radius: 1rem 1rem 1rem 1rem;
+    border-radius: 0 0 1.5rem 1.5rem;
     overflow: hidden;
-    padding:1rem;
-    z-index: 999;
+    padding: 1rem;
+    padding-top: 2rem; /* Beri ruang dari search bar */
+    z-index: 9999; /* Z-index sangat tinggi */
     max-height: 0;
     opacity: 0;
     transition: max-height 0.3s ease, opacity 0.3s ease;
@@ -120,6 +121,37 @@ main {
 .search-results.show {
     max-height: 500px;
     opacity: 1;
+}
+
+.search-result-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.search-result-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.result-type-badge {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 1rem;
+    font-weight: 600;
+}
+
+.result-type-badge.jadwal {
+    background-color: var(--accent-cyan);
+    color: var(--bg-primary);
+}
+
+.result-type-badge.tugas {
+    background-color: var(--accent-orange);
+    color: var(--bg-primary);
 }
 
 .main-header {
@@ -269,3 +301,13 @@ hr { border: none; height: 1px; background-color: var(--border); margin: 1rem 0;
     transform: translateY(-100%); 
     transition: transform 0.3s ease; }
 .pull-to-refresh-indicator.show { transform: translateY(0); }
+
+@keyframes blink-red {
+  0%, 100% { background-color: rgba(255, 107, 107, 0.5); }
+  50% { background-color: transparent; }
+}
+
+.highlighted > .list-item {
+  animation: blink-red 0.7s ease-in-out 2;
+  border-color: var(--accent-danger);
+}
