@@ -1,4 +1,4 @@
-// /src/components/Search.tsx
+// src/components/Search.tsx
 'use client';
 
 import { useState } from 'react';
@@ -36,7 +36,7 @@ export default function Search({ tasks, schedules }: { tasks: any[], schedules: 
   };
 
   return (
-    <div className="search-container" style={{ position: 'relative', width: '90%', maxWidth: '600px', margin: '0 auto' }}>
+    <div className="search-container" style={{ position: 'relative' }}>
       <input 
         type="text" 
         className="search-bar" 
