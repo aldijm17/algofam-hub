@@ -1,17 +1,16 @@
-// /app/admin/layout.tsx
-import './admin.css'; // Impor CSS yang baru
+// /src/app/admin/layout.tsx
+import './admin.css';
 import { ReactNode } from 'react';
 
-// Definisikan tipe untuk props
-interface AdminLayoutProps {
-  children: ReactNode;
-}
-
-export default function AdminLayout({ children }: AdminLayoutProps) {
+export default function AdminDashboardLayout({ children }: { children: ReactNode }) {
   return (
-    // Kita tidak perlu tag <section> jika tidak ada styling khusus
-    <>
-      {children}
-    </>
+    <div className="admin-dashboard">
+       <header className="admin-header">
+        <h1>Admin Dashboard</h1>
+      </header>
+      <main>
+        {children}
+      </main>
+    </div>
   );
 }

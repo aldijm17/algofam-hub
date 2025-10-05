@@ -1,17 +1,30 @@
 // /app/admin/tugas/add/page.tsx
 'use client'
 
-import { useState, FormEvent } from 'react'
+import { useState, FormEvent, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import Link from 'next/link'
+import { Schedule } from '@/types/database'
 
 export default function AddTugasPage() {
   const router = useRouter()
   const supabase = createClient()
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+  const [schedules, setSchedules] = useState<Schedule[]>([])
 
-  // Berikan tipe event sebagai FormEvent<HTMLFormElement>
+  useEffect(() => {
+    const fetchSchedules = async () => {
+      const { data, error } = await supabase.from('jadwal').select('mata_kuliah');
+      if (error) {
+        console.error('Error fetching schedules:', error);
+      } else if (data) {
+        setSchedules(data as Schedule[]);
+      }
+    };
+    fetchSchedules();
+  }, []);
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setIsSubmitting(true)
@@ -24,7 +37,7 @@ export default function AddTugasPage() {
       matkul: formData.get('matkul') as string,
       dosen: formData.get('dosen') as string,
       catatan: formData.get('catatan') as string,
-      status: 'belum' // Status default
+      status: 'belum'
     };
 
     const { error } = await supabase.from('tugas').insert([taskData])
@@ -44,7 +57,6 @@ export default function AddTugasPage() {
       <h2>➕ Tambah Tugas Baru</h2>
       <div className="form-container">
         <form id="taskForm" onSubmit={handleSubmit}>
-          {/* Formulir tidak berubah */}
           <div className="form-group">
             <label htmlFor="tugas">Nama Tugas *</label>
             <input type="text" id="tugas" name="tugas" placeholder="Masukkan nama tugas" required />
@@ -59,7 +71,12 @@ export default function AddTugasPage() {
           </div>
           <div className="form-group">
             <label htmlFor="matkul">Mata Kuliah *</label>
-            <input type="text" id="matkul" name="matkul" placeholder="Masukkan nama mata kuliah" required />
+            <select id="matkul" name="matkul" required>
+              <option value="">Pilih Mata Kuliah</option>
+              {[...new Set(schedules.map(schedule => schedule.mata_kuliah))].map(mata_kuliah => (
+                <option key={mata_kuliah} value={mata_kuliah}>{mata_kuliah}</option>
+              ))}
+            </select>
           </div>
           <div className="form-group">
             <label htmlFor="dosen">Dosen Pengampu *</label>

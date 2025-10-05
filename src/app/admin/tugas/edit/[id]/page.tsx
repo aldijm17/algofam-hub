@@ -2,22 +2,33 @@
 'use client'
 
 import { useEffect, useState, FormEvent } from 'react'
-// Impor useParams dari next/navigation
 import { useRouter, useParams } from 'next/navigation' 
 import { createClient } from '@/utils/supabase/client'
 import Link from 'next/link'
-import { Task } from '@/types/database'
+import { Task, Schedule } from '@/types/database'
 
 export default function EditTugasPage() {
   const router = useRouter();
-  // Gunakan useParams untuk mendapatkan parameter dari URL
   const params = useParams();
-  const id = params.id as string; // Ambil id dari objek params
+  const id = params.id as string;
 
   const supabase = createClient();
   const [task, setTask] = useState<Task | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [schedules, setSchedules] = useState<Schedule[]>([])
+
+  useEffect(() => {
+    const fetchSchedules = async () => {
+      const { data, error } = await supabase.from('jadwal').select('mata_kuliah');
+      if (error) {
+        console.error('Error fetching schedules:', error);
+      } else if (data) {
+        setSchedules(data as Schedule[]);
+      }
+    };
+    fetchSchedules();
+  }, [supabase]);
 
   useEffect(() => {
     if (!id) return;
@@ -40,7 +51,7 @@ export default function EditTugasPage() {
     };
     
     fetchTask();
-  }, [id, router]);
+  }, [id, router, supabase]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -72,7 +83,6 @@ export default function EditTugasPage() {
       <h2>✏️ Edit Tugas</h2>
       <div className="form-container">
         <form id="editForm" onSubmit={handleSubmit}>
-          {/* Sisa formulir tidak berubah */}
           <div className="form-group">
             <label htmlFor="tugas">Nama Tugas *</label>
             <input type="text" id="tugas" name="tugas" defaultValue={task.tugas} required />
@@ -87,7 +97,12 @@ export default function EditTugasPage() {
           </div>
           <div className="form-group">
             <label htmlFor="matkul">Mata Kuliah *</label>
-            <input type="text" id="matkul" name="matkul" defaultValue={task.matkul ?? ''} required />
+            <select id="matkul" name="matkul" defaultValue={task.matkul ?? ''} required>
+              <option value="">Pilih Mata Kuliah</option>
+              {[...new Set(schedules.map(schedule => schedule.mata_kuliah))].map(mata_kuliah => (
+                <option key={mata_kuliah} value={mata_kuliah}>{mata_kuliah}</option>
+              ))}
+            </select>
           </div>
           <div className="form-group">
             <label htmlFor="dosen">Dosen Pengampu *</label>
